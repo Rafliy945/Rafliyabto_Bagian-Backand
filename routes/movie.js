@@ -5,6 +5,60 @@ const db = require('../config/db');
 
 console.log('🔥 server start');
 
+// POST SINGLE MOVIE (BARU)
+// Endpoint: POST /api/movies
+router.post('/', async (req, res) => {
+  try {
+    const { id, title, image, rating, year, isNew, top } = req.body;
+
+    // Validasi input
+    if (!id || !title) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID dan Title wajib diisi!',
+      });
+    }
+
+    const sql = `
+      INSERT INTO movies (id, title, image, rating, year, isNew, top)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const [result] = await db.query(sql, [
+      id,
+      title,
+      image || null,
+      rating || 0,
+      year || new Date().getFullYear(),
+      isNew ? 1 : 0,
+      top ? 1 : 0,
+    ]);
+
+    res.status(201).json({
+      success: true,
+      message: 'Film berhasil ditambahkan!',
+      data: {
+        id,
+        title,
+        image,
+        rating,
+        year,
+        isNew,
+        top,
+      },
+    });
+  } catch (err) {
+    // Handle duplicate entry error
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({
+        success: false,
+        message: 'ID film sudah ada di database!',
+      });
+    }
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // POST BULK MOVIES
 // Endpoint: POST /api/movies/bulk
 router.post('/bulk', async (req, res) => {

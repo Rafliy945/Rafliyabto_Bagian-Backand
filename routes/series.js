@@ -24,11 +24,10 @@ router.get('/', async (req, res) => {
         res.status(500).json({ success: false, error: err.message }); 
     }
 });
-// Ganti bagian POST di series.js kamu dengan ini
+//  bagian POST di series.js 
 router.post('/', async (req, res) => {
     const { genre_id, judul, deskripsi, rating } = req.body;
     try {
-        // Urutan harus sama: genre_id, judul, deskripsi, rating
         const [result] = await db.query(
             'INSERT INTO series_films (genre_id, judul, deskripsi, rating) VALUES (?, ?, ?, ?)', 
             [genre_id, judul, deskripsi, rating]
